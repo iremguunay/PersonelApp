@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.client.RestTemplate;
 
 import java.util.List;
 import java.util.Optional;
@@ -35,6 +36,28 @@ public class PersonelController {
     @GetMapping("/personel")
     public List<Personel> getPersonelList() {
         return personelRepository.findAll();
+    }
+
+    @GetMapping("/personel-bolum/{id}")
+    public String getPersonelWithBolumSehir(@PathVariable("id") long no) {
+
+        Personel personel = getPersonel(no);
+
+        String bolumAd = getBolumAd(personel.getNo());
+
+        return personel.getNo() + " " + personel.getAd() + " " + personel.getSoyad()
+                + " " + bolumAd;
+    }
+
+    private String getBolumAd(long no) {
+
+        String bolumURL = "http://localhost:8230";
+
+        RestTemplate restTemplate = new RestTemplate();
+
+        String bolumAd = restTemplate.getForObject(bolumURL+"/bolum-ad/" + no, String.class);
+
+        return bolumAd;
     }
 
 }
